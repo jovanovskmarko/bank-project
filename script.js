@@ -83,7 +83,7 @@ const displayMovements = function (movements) {
     const html = 
                 `<div class="movements__row">
                   <div class="movements__type movements__type--${type}">${i + 1} ${type}</div>
-                  <div class="movements__value">${mov}</div>
+                  <div class="movements__value">${mov}€</div>
                 </div>`
     containerMovements.insertAdjacentHTML('afterbegin',html);
 
@@ -106,12 +106,67 @@ const calcAndDisplayBalance = function(movements) {
     return acc + mov;
   },0)
 
-  labelBalance.textContent = balance;
+  labelBalance.textContent = `${balance}€`;
 }
 
-displayMovements(account1.movements);
+const calcDisplaySummary = function(account) {
+
+  const income = movements.filter(function(mov) {
+    return account.mov > 0;
+  }).reduce(function(acc, mov) {
+    return acc + mov;
+  },0)
+
+  const out = account.movements.filter(function(mov) {
+    return mov < 0;
+  }).reduce(function(acc, mov) {
+    return acc + mov;
+  },0)
+
+  const interest = account.movements.filter(function(mov) {
+    return mov > 0;
+  }).map(function(deposit) {
+    return deposit * account.interestRate / 100;
+  }).filter(function(int) {
+      return int > 1;
+  }).reduce(function(acc, int) {
+    return acc + int;
+  }, 0)
+
+  labelSumIn.textContent = `${income}€`;
+  labelSumOut.textContent = `${Math.abs(out)}€`;
+  labelSumInterest.textContent = `${interest}€`
+}
 
 createUsername(accounts)
 
-calcAndDisplayBalance(account1.movements)
+let currentAccount;
+
+btnLogin.addEventListener('click', function(e) {
+  e.preventDefault();
+  currentAccount = accounts.find(function(acc) {
+    return acc.username === inputLoginUsername.value
+  })
+
+  if(currentAccount?.pin === Number(inputLoginPin.value)) {
+    // Display welcome message and make visible
+    labelWelcome.textContent = `Welcome ${currentAccount.owner}`
+    containerApp.style.opacity = 100;
+
+    // Clear input fields
+    inputLoginUsername.value ='' 
+    inputLoginPin.value = '';
+    inputLoginPin.blur()
+
+    // Display movements
+    displayMovements(currentAccount.movements);
+
+    // Display balance
+    calcAndDisplayBalance(currentAccount.movements)
+
+    // Display summary
+    calcDisplaySummary(currentAccount)
+  }
+})
+
 
