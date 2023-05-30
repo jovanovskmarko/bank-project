@@ -101,6 +101,17 @@ const createUsername = function(accounts) {
   })
 }
 
+const calcAndDisplayBalance = function(movements) {
+  const balance = movements.reduce(function(acc, mov) {
+    return acc + mov;
+  },0)
+
+  labelBalance.textContent = balance;
+}
+
 displayMovements(account1.movements);
 
 createUsername(accounts)
+
+calcAndDisplayBalance(account1.movements)
+
