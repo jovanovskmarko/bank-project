@@ -75,10 +75,14 @@ const movements = [200, 450, -400, 3000, -650, -130, 70, 1300];
 
 /////////////////////////////////////////////////
 
-const displayMovements = function (movements) {
+const displayMovements = function (movements, sort = false) {
   containerMovements.innerHTML = '';
 
-  movements.forEach(function(mov, i) {
+  const movs = sort ? movements.slice().sort(function(a,b) {
+    return a - b
+  }) : movements
+
+  movs.forEach(function(mov, i) {
     const type = mov > 0 ? 'deposit' : 'withdrawal'
     const html = 
                 `<div class="movements__row">
@@ -139,9 +143,9 @@ const calcDisplaySummary = function(account) {
   labelSumInterest.textContent = `${interest}€`
 }
 
-const updateUI = function(acc) {
+const updateUI = function(acc, sorted) {
   // Display movements
-  displayMovements(acc.movements);
+  displayMovements(acc.movements,sorted);
 
   // Display balance
   calcAndDisplayBalance(acc)
@@ -221,4 +225,10 @@ btnLoan.addEventListener('click', function(e) {
   inputLoanAmount.value = ''
 })
 
+let sorted = false
+btnSort.addEventListener('click', function(e) {
+  e.preventDefault()
+  displayMovements(currentAccount.movements, !sorted)
+  sorted = !sorted
 
+})
