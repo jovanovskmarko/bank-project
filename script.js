@@ -1,9 +1,5 @@
 'use strict';
 
-/////////////////////////////////////////////////
-/////////////////////////////////////////////////
-// BANKIST APP
-
 // Data
 const account1 = {
   owner: 'Jonas Schmedtmann',
@@ -61,9 +57,6 @@ const inputLoanAmount = document.querySelector('.form__input--loan-amount');
 const inputCloseUsername = document.querySelector('.form__input--user');
 const inputClosePin = document.querySelector('.form__input--pin');
 
-/////////////////////////////////////////////////
-/////////////////////////////////////////////////
-// LECTURES
 
 const currencies = new Map([
   ['USD', 'United States dollar'],
@@ -87,7 +80,7 @@ const displayMovements = function (movements, sort = false) {
     const html = 
                 `<div class="movements__row">
                   <div class="movements__type movements__type--${type}">${i + 1} ${type}</div>
-                  <div class="movements__value">${mov}€</div>
+                  <div class="movements__value">${mov.toFixed(2)}€</div>
                 </div>`
     containerMovements.insertAdjacentHTML('afterbegin',html);
 
@@ -111,7 +104,7 @@ const calcAndDisplayBalance = function(acc) {
   },0)
 
   acc.balance = balance;
-  labelBalance.textContent = `${acc.balance}€`;
+  labelBalance.textContent = `${acc.balance.toFixed(2)}€`;
 }
 
 const calcDisplaySummary = function(account) {
@@ -140,7 +133,7 @@ const calcDisplaySummary = function(account) {
 
   labelSumIn.textContent = `${income}€`;
   labelSumOut.textContent = `${Math.abs(out)}€`;
-  labelSumInterest.textContent = `${interest}€`
+  labelSumInterest.textContent = `${interest.toFixed(2)}€`
 }
 
 const updateUI = function(acc, sorted) {
@@ -215,7 +208,7 @@ btnClose.addEventListener('click', function(e) {
 
 btnLoan.addEventListener('click', function(e) {
   e.preventDefault()
-  const amount = Number(inputLoanAmount.value)
+  const amount = Math.floor(inputLoanAmount.value)
   if(amount >= 0 && currentAccount.movements.some(function(mov) {
       return mov >= amount * 0.1
   })){
