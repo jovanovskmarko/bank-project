@@ -13,9 +13,9 @@ const account1 = {
     '2020-01-28T09:15:04.904Z',
     '2020-04-01T10:17:24.185Z',
     '2020-05-08T14:11:59.604Z',
-    '2020-05-27T17:01:17.194Z',
-    '2020-07-11T23:36:17.929Z',
-    '2020-07-12T10:51:36.790Z',
+    '2023-06-20T17:01:17.194Z',
+    '2023-06-22T23:36:17.929Z',
+    '2023-06-23T10:51:36.790Z',
   ],
   currency: 'EUR',
   locale: 'pt-PT', // de-DE
@@ -79,16 +79,35 @@ const currencies = new Map([
 const movements = [200, 450, -400, 3000, -650, -130, 70, 1300];
 
 /////////////////////////////////////////////////
+const formatDateMovement = function(date){
+  const calcDayspassed = function(date1, date2) {
+    return Math.round(Math.abs(date2 - date1) / (1000 * 60 * 60 *24));
+  }
+  const daysPassed = calcDayspassed(new Date(), date);
+  console.log(daysPassed)
+  
+  if(daysPassed === 0){
+    return 'Today';
+  }
+
+  if(daysPassed === 1) {
+    return 'Yesterday';
+  }
+
+  if(daysPassed <= 7) {
+    return `${daysPassed} days ago`
+  }
+  else {
+    const day = `${date.getDate()}`.padStart(2,0);
+    const month = `${date.getMonth() + 1}`.padStart(2,0);
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
+  }
+}
+
 
 const displayMovements = function (account, sort = false) {
   containerMovements.innerHTML = '';
-  const now = new Date();
-  const day = `${now.getDate()}`.padStart(2,0);
-  const month = `${now.getMonth() + 1}`.padStart(2,0);
-  const year = now.getFullYear();
-  const hours = `${now.getHours()}`.padStart(2,0);
-  const min = `${now.getMinutes()}`.padStart(2,0);
-  labelDate.textContent = `${day}/${month}/${year}, ${hours}:${min}`;
 
   const movs = sort ? account.movements.slice().sort(function(a,b) {
     return a - b
@@ -97,10 +116,8 @@ const displayMovements = function (account, sort = false) {
   movs.forEach(function(mov, i) {
     const type = mov > 0 ? 'deposit' : 'withdrawal'
     const date = new Date(account.movementsDates[i]);
-    const day = `${date.getDate()}`.padStart(2,0);
-    const month = `${date.getMonth() + 1}`.padStart(2,0);
-    const year = date.getFullYear();
-    const displayDate = `${day}/${month}/${year}`;
+    const displayDate = formatDateMovement(date);
+    console.log(displayDate);
     const html = 
                 `<div class="movements__row">
                   <div class="movements__type movements__type--${type}">${i + 1} ${type}</div>
@@ -181,6 +198,13 @@ btnLogin.addEventListener('click', function(e) {
   currentAccount = accounts.find(function(acc) {
     return acc.username === inputLoginUsername.value
   })
+  const now = new Date();
+  const day = `${now.getDate()}`.padStart(2,0);
+  const month = `${now.getMonth() + 1}`.padStart(2,0);
+  const year = now.getFullYear();
+  const hours = `${now.getHours()}`.padStart(2,0);
+  const min = `${now.getMinutes()}`.padStart(2,0);
+  labelDate.textContent = `${day}/${month}/${year}, ${hours}:${min}`;
 
   if(currentAccount?.pin === Number(inputLoginPin.value)) {
     // Display welcome message and make visible
@@ -246,7 +270,7 @@ btnLoan.addEventListener('click', function(e) {
   })){
     // Add movement
     currentAccount.movements.push(amount)
-    
+
     // Add date
     currentAccount.movementsDates.push(new Date());
 
