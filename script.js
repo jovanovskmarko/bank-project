@@ -79,12 +79,11 @@ const currencies = new Map([
 const movements = [200, 450, -400, 3000, -650, -130, 70, 1300];
 
 /////////////////////////////////////////////////
-const formatDateMovement = function(date){
+const formatDateMovement = function(date, locale){
   const calcDayspassed = function(date1, date2) {
     return Math.round(Math.abs(date2 - date1) / (1000 * 60 * 60 *24));
   }
   const daysPassed = calcDayspassed(new Date(), date);
-  console.log(daysPassed)
   
   if(daysPassed === 0){
     return 'Today';
@@ -97,12 +96,12 @@ const formatDateMovement = function(date){
   if(daysPassed <= 7) {
     return `${daysPassed} days ago`
   }
-  else {
-    const day = `${date.getDate()}`.padStart(2,0);
-    const month = `${date.getMonth() + 1}`.padStart(2,0);
-    const year = date.getFullYear();
-    return `${day}/${month}/${year}`;
-  }
+  
+  return Intl.DateTimeFormat(locale).format(date);
+}
+
+const formatCurrency = function(value, locale, currency){
+  return new Intl.NumberFormat(locale, {style: 'currency', currency: currency}).format(value);
 }
 
 
@@ -116,13 +115,13 @@ const displayMovements = function (account, sort = false) {
   movs.forEach(function(mov, i) {
     const type = mov > 0 ? 'deposit' : 'withdrawal'
     const date = new Date(account.movementsDates[i]);
-    const displayDate = formatDateMovement(date);
-    console.log(displayDate);
+    const displayDate = formatDateMovement(date, account.locale);
+    const formattedMov = formatCurrency(mov,account.locale, account.currency)
     const html = 
                 `<div class="movements__row">
                   <div class="movements__type movements__type--${type}">${i + 1} ${type}</div>
                   <div class="movements__date">${displayDate}</div>
-                  <div class="movements__value">${mov.toFixed(2)}€</div>
+                  <div class="movements__value">${formattedMov}</div>
                 </div>`
     containerMovements.insertAdjacentHTML('afterbegin',html);
 
@@ -146,7 +145,7 @@ const calcAndDisplayBalance = function(acc) {
   },0)
 
   acc.balance = balance;
-  labelBalance.textContent = `${acc.balance.toFixed(2)}€`;
+  labelBalance.textContent = formatCurrency(acc.balance,acc.locale, acc.currency)
 }
 
 const calcDisplaySummary = function(account) {
@@ -173,9 +172,11 @@ const calcDisplaySummary = function(account) {
     return acc + int;
   }, 0)
 
-  labelSumIn.textContent = `${income}€`;
-  labelSumOut.textContent = `${Math.abs(out)}€`;
-  labelSumInterest.textContent = `${interest.toFixed(2)}€`
+  labelSumIn.textContent = formatCurrency(income, account.locale, account.currency)
+
+  labelSumOut.textContent = formatCurrency(Math.abs(out), account.locale, account.currency)
+ 
+  labelSumInterest.textContent = formatCurrency(interest, account.locale, account.currency)
 }
 
 const updateUI = function(acc, sorted) {
@@ -250,7 +251,7 @@ btnTransfer.addEventListener('click', function(e) {
 
 btnClose.addEventListener('click', function(e) {
   e.preventDefault()
-  console.log( Number(inputClosePin) === currentAccount.pin)
+ 
   if(inputCloseUsername.value === currentAccount.username && Number(inputClosePin.value) === currentAccount.pin){
  
     const index = accounts.findIndex(function(acc) {
