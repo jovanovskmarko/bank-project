@@ -79,6 +79,37 @@ const currencies = new Map([
 const movements = [200, 450, -400, 3000, -650, -130, 70, 1300];
 
 /////////////////////////////////////////////////
+const startLogoutTimer = function() {
+  // Set time
+  let time = 10;
+  const tick = function() {
+
+    // In each call print the remaining time 
+    const sec = String(time % 60).padStart(2,0);
+    const min = String(Math.trunc(time / 60)).padStart(2,0);
+
+    labelTimer.textContent = `${min}:${sec}`
+    
+    // When 0 seconds stop timer and logout
+    if(time === 0){
+      clearInterval(timer)
+      containerApp.style.opacity = 0;
+      labelWelcome.textContent = 'Log in to get started'
+
+    }
+
+    // Decrease time
+    time--;
+
+  }
+
+  // Call timer every second
+  tick();
+  const timer = setInterval(tick, 1000);
+  return timer;
+}
+
+
 const formatDateMovement = function(date, locale){
   const calcDayspassed = function(date1, date2) {
     return Math.round(Math.abs(date2 - date1) / (1000 * 60 * 60 *24));
@@ -192,7 +223,10 @@ const updateUI = function(acc, sorted) {
 
 createUsername(accounts)
 
-let currentAccount;
+
+
+// Event handlers
+let currentAccount, timer;
 
 btnLogin.addEventListener('click', function(e) {
   e.preventDefault();
@@ -216,9 +250,12 @@ btnLogin.addEventListener('click', function(e) {
     inputLoginUsername.value ='' 
     inputLoginPin.value = '';
     inputLoginPin.blur()
-
+    if(timer) clearInterval(timer)
+    timer = startLogoutTimer()
+    
     updateUI(currentAccount)
   }
+  
 })
 
 btnTransfer.addEventListener('click', function(e) {
@@ -239,7 +276,11 @@ btnTransfer.addEventListener('click', function(e) {
     // Add date
     currentAccount.movementsDates.push(new Date());
     receiverAcc.movementsDates.push(new Date());
-    
+
+    // Reset timer
+    clearInterval(timer)
+    timer = startLogoutTimer()
+
     // Update UI
     updateUI(currentAccount)
   }
@@ -275,6 +316,10 @@ btnLoan.addEventListener('click', function(e) {
     // Add date
     currentAccount.movementsDates.push(new Date());
 
+    //Reset timer
+    clearInterval(timer)
+    timer = startLogoutTimer()
+    
     // Update UI
     updateUI(currentAccount)
   }
